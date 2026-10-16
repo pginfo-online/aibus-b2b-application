@@ -1,26 +1,164 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #f8fafc;
+    --foreground: #0f172a;
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+    --primary: #d92d20;
+    --primary-hover: #b42318;
+    --primary-foreground: #ffffff;
+    --primary-surface: #fef3f2;
+    --secondary: #f1f5f9;
+    --secondary-foreground: #0f172a;
+    --muted: #f1f5f9;
+    --muted-foreground: #475569;
+    --accent: #d97706;
+    --accent-foreground: #ffffff;
+    --accent-surface: #fef3c7;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #d92d20;
+    --radius: 0.625rem;
+
+    /* Status colors */
+    --success: #16a34a;
+    --success-surface: #f0fdf4;
+    --warning: #f59e0b;
+    --warning-surface: #fffbeb;
+    --danger: #dc2626;
+    --danger-surface: #fef2f2;
+    --info: #0284c7;
+    --info-surface: #f0f9ff;
+
+    /* Seat states */
+    --seat-available: #ffffff;
+    --seat-available-border: #94a3b8;
+    --seat-selected: #16a34a;
+    --seat-selected-border: #15803d;
+    --seat-booked: #cbd5e1;
+    --seat-booked-border: #94a3b8;
+    --seat-ladies: #fbcfe8;
+    --seat-ladies-border: #ec4899;
+    --seat-held: #fde68a;
+    --seat-held-border: #d97706;
+  }
+
+  .dark {
+    --background: #0b1220;
+    --foreground: #f8fafc;
+    --card: #111827;
+    --card-foreground: #f8fafc;
+    --popover: #111827;
+    --popover-foreground: #f8fafc;
+    --primary: #ef4444;
+    --primary-hover: #dc2626;
+    --primary-foreground: #ffffff;
+    --primary-surface: #450a0a;
+    --secondary: #1e293b;
+    --secondary-foreground: #f8fafc;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+    --accent: #f59e0b;
+    --accent-foreground: #ffffff;
+    --accent-surface: #78350f;
+    --border: #1e293b;
+    --input: #1e293b;
+    --ring: #ef4444;
+
+    /* Status colors */
+    --success: #22c55e;
+    --success-surface: #052e16;
+    --warning: #fbbf24;
+    --warning-surface: #451a03;
+    --danger: #ef4444;
+    --danger-surface: #450a0a;
+    --info: #38bdf8;
+    --info-surface: #082f49;
+
+    /* Seat states */
+    --seat-available: #1e293b;
+    --seat-available-border: #475569;
+    --seat-selected: #22c55e;
+    --seat-selected-border: #16a34a;
+    --seat-booked: #334155;
+    --seat-booked-border: #1e293b;
+    --seat-ladies: #831843;
+    --seat-ladies-border: #db2777;
+    --seat-held: #78350f;
+    --seat-held-border: #d97706;
   }
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-feature-settings: "rlig" 1, "calt" 1;
+  min-height: 100vh;
+}
+
+/* Custom Scrollbar for sleek B2B data density */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Smooth transitions */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Shimmer Skeleton */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.6) 0%,
+    rgba(241, 245, 249, 0.9) 50%,
+    rgba(226, 232, 240, 0.6) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.dark .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(30, 41, 59, 0.6) 0%,
+    rgba(51, 65, 85, 0.9) 50%,
+    rgba(30, 41, 59, 0.6) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
