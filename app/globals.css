@@ -4,17 +4,17 @@
 
 @layer base {
   :root {
-    --background: #f8fafc;
+    --background: #ffffff;
     --foreground: #0f172a;
     --card: #ffffff;
     --card-foreground: #0f172a;
     --popover: #ffffff;
     --popover-foreground: #0f172a;
-    --primary: #d92d20;
-    --primary-hover: #b42318;
+    --primary: #e24b4b;
+    --primary-hover: #d92d20;
     --primary-foreground: #ffffff;
-    --primary-surface: #fef3f2;
-    --secondary: #f1f5f9;
+    --primary-surface: #fff1f2;
+    --secondary: #f8fafc;
     --secondary-foreground: #0f172a;
     --muted: #f1f5f9;
     --muted-foreground: #475569;
@@ -23,8 +23,8 @@
     --accent-surface: #fef3c7;
     --border: #e2e8f0;
     --input: #e2e8f0;
-    --ring: #d92d20;
-    --radius: 0.625rem;
+    --ring: #e24b4b;
+    --radius: 0.75rem;
 
     /* Status colors */
     --success: #16a34a;
@@ -35,6 +35,15 @@
     --danger-surface: #fef2f2;
     --info: #0284c7;
     --info-surface: #f0f9ff;
+
+    /* Brand accents */
+    --brand-coral: #e24b4b;
+    --brand-coral-dark: #c92a2a;
+    --brand-coral-light: #fee4e2;
+    --brand-cream: #fdf9f7;
+    --brand-amber: #fef3c7;
+    --brand-sky: #f0f9ff;
+    --brand-purple: #faf5ff;
 
     /* Seat states */
     --seat-available: #ffffff;
@@ -81,6 +90,15 @@
     --info: #38bdf8;
     --info-surface: #082f49;
 
+    /* Brand accents */
+    --brand-coral: #ef4444;
+    --brand-coral-dark: #b91c1c;
+    --brand-coral-light: #450a0a;
+    --brand-cream: #0e1726;
+    --brand-amber: #2d1e05;
+    --brand-sky: #082f49;
+    --brand-purple: #231535;
+
     /* Seat states */
     --seat-available: #1e293b;
     --seat-available-border: #475569;
@@ -100,12 +118,30 @@ body {
   color: var(--foreground);
   font-feature-settings: "rlig" 1, "calt" 1;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Lenis Smooth Scrolling */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }
 
 /* Custom Scrollbar for sleek B2B data density */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -121,14 +157,59 @@ body {
   background: #94a3b8;
 }
 
-/* Smooth transitions */
-@media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+/* Marquee Animations */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
   }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 34s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.animate-marquee-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-reverse 34s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-reverse:hover {
+  animation-play-state: paused;
+}
+
+/* Floating bounce animation for micro-elements */
+@keyframes float-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float {
+  animation: float-subtle 4s ease-in-out infinite;
 }
 
 /* Shimmer Skeleton */
@@ -161,4 +242,17 @@ body {
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+}
+
+/* Smooth transitions */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-marquee, .animate-marquee-reverse, .animate-float {
+    animation: none !important;
+  }
 }

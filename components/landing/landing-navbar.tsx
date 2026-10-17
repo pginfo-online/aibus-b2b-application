@@ -1,79 +1,87 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bus, Menu, X, ArrowRight, UserCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Menu, X, ArrowRight, UserCheck } from "lucide-react";
+import { BrandLogo } from "@/components/landing/brand-logo";
 import { useAuthStore } from "@/store/auth-store";
+import { cn } from "@/lib/utils";
 
 export function LandingNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { user } = useAuthStore();
 
   const navLinks = [
-    { label: "Home", href: "/" },
-    { label: "How You Earn", href: "/#landing-page-section-earn" },
-    { label: "Features", href: "/#landing-page-section-benefits" },
+    { label: "Home", href: "#hero" },
+    { label: "How You Earn", href: "#landing-page-section-earn" },
+    { label: "Features", href: "#landing-page-section-benefits" },
     { label: "About", href: "/about-aibus" },
-    { label: "Why Us", href: "/#landing-page-section-why-us" },
-    { label: "FAQs", href: "/#landing-page-section-faqs" },
+    { label: "Why Us", href: "#landing-page-section-why-us" },
+    { label: "FAQs", href: "#landing-page-section-faqs" },
   ];
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/90 transition-colors">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        isScrolled
+          ? "bg-white/95 dark:bg-[#0B1220]/95 backdrop-blur-md shadow-xs border-b border-slate-200/70 dark:border-slate-800/80 py-3"
+          : "bg-white/80 dark:bg-[#0B1220]/80 backdrop-blur-sm border-b border-slate-200/40 dark:border-slate-800/40 py-4"
+      )}
+    >
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#D92D20] text-white shadow-md shadow-red-600/20 group-hover:bg-[#B42318] transition-colors">
-            <Bus className="h-5 w-5" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1">
-              Ai<span className="text-[#D92D20]">Bus</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-red-100 text-[#D92D20] dark:bg-red-950/60 dark:text-red-300 ml-1">
-                B2B
-              </span>
-            </span>
-            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 -mt-1 tracking-wide">
-              Agent Booking Platform
-            </span>
-          </div>
-        </Link>
+        <BrandLogo href="/" />
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-6" aria-label="Main Navigation">
+        <nav
+          className="hidden md:flex items-center gap-7 lg:gap-8"
+          aria-label="Main Navigation"
+        >
           {navLinks.map((link) => (
             <Link
               key={link.label}
               href={link.href}
-              className="text-sm font-semibold text-slate-600 hover:text-[#D92D20] dark:text-slate-300 dark:hover:text-white transition-colors"
+              className="text-sm font-semibold text-slate-700 hover:text-[#E24B4B] dark:text-slate-200 dark:hover:text-[#EF4444] transition-colors relative group py-1"
             >
               {link.label}
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#E24B4B] transition-all duration-200 group-hover:w-full rounded-full" />
             </Link>
           ))}
         </nav>
 
-        {/* Action CTAs */}
+        {/* Action CTAs (Pill-styled buttons matching reference designs) */}
         <div className="hidden sm:flex items-center gap-3">
           {user ? (
-            <Link href="/portal">
-              <Button variant="primary" size="md">
-                <UserCheck className="h-4 w-4 mr-1" />
-                Go to Portal
-              </Button>
+            <Link
+              href="/portal"
+              className="inline-flex items-center justify-center rounded-full bg-[#E24B4B] hover:bg-[#D92D20] text-white px-5 py-2 text-sm font-semibold shadow-xs hover:shadow-md transition-all active:scale-[0.98]"
+            >
+              <UserCheck className="h-4 w-4 mr-1.5" />
+              Go to Portal
             </Link>
           ) : (
             <>
-              <Link href="/sign-in">
-                <Button variant="ghost" size="md">
-                  Sign In
-                </Button>
+              <Link
+                href="/register"
+                className="inline-flex items-center justify-center rounded-full border border-slate-700 text-slate-800 hover:border-slate-900 hover:bg-slate-100/80 dark:border-slate-400 dark:text-slate-100 dark:hover:border-white dark:hover:bg-slate-800/80 px-5 py-2 text-sm font-semibold transition-all active:scale-[0.98]"
+              >
+                Get Started
               </Link>
-              <Link href="/register">
-                <Button variant="primary" size="md">
-                  Get Started
-                  <ArrowRight className="h-4 w-4 ml-1" />
-                </Button>
+              <Link
+                href="/sign-in"
+                className="inline-flex items-center justify-center rounded-full bg-[#E24B4B] hover:bg-[#D92D20] text-white px-5 py-2 text-sm font-semibold shadow-xs hover:shadow-md shadow-red-500/10 transition-all active:scale-[0.98]"
+              >
+                Sign In
               </Link>
             </>
           )}
@@ -83,8 +91,9 @@ export function LandingNavbar() {
         <div className="flex sm:hidden">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-            aria-label="Toggle mobile menu"
+            className="p-2 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 transition-colors"
+            aria-label="Toggle mobile navigation menu"
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -93,37 +102,44 @@ export function LandingNavbar() {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="sm:hidden border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 px-4 pt-2 pb-6 space-y-3 animate-in slide-in-from-top-2 duration-200">
-          <nav className="flex flex-col space-y-2">
+        <div className="sm:hidden border-b border-slate-200/80 bg-white/95 dark:border-slate-800 dark:bg-[#0B1220]/95 backdrop-blur-xl px-5 pt-3 pb-6 space-y-4 shadow-xl">
+          <nav className="flex flex-col space-y-1">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 rounded-lg dark:text-slate-300 dark:hover:bg-slate-800"
+                className="px-3 py-2.5 text-base font-semibold text-slate-800 hover:text-[#E24B4B] hover:bg-slate-50 rounded-xl dark:text-slate-200 dark:hover:bg-slate-800/60 transition-colors"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2.5">
             {user ? (
-              <Link href="/portal" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="primary" className="w-full">
-                  Go to Agent Portal
-                </Button>
+              <Link
+                href="/portal"
+                onClick={() => setMobileMenuOpen(false)}
+                className="inline-flex items-center justify-center w-full rounded-full bg-[#E24B4B] text-white py-3 font-semibold shadow-md"
+              >
+                Go to Agent Portal
               </Link>
             ) : (
               <>
-                <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full">
-                    Sign In
-                  </Button>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="inline-flex items-center justify-center w-full rounded-full border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 py-2.5 font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Get Started
                 </Link>
-                <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="primary" className="w-full">
-                    Start Earning
-                  </Button>
+                <Link
+                  href="/sign-in"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="inline-flex items-center justify-center w-full rounded-full bg-[#E24B4B] hover:bg-[#D92D20] text-white py-2.5 font-semibold shadow-md transition-colors"
+                >
+                  Sign In
+                  <ArrowRight className="h-4 w-4 ml-1.5" />
                 </Link>
               </>
             )}
