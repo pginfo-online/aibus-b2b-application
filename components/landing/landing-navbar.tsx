@@ -16,7 +16,7 @@ export function LandingNavbar() {
     { label: "Home", href: "#hero" },
     { label: "How You Earn", href: "#landing-page-section-earn" },
     { label: "Features", href: "#landing-page-section-benefits" },
-    { label: "About", href: "/about-aibus" },
+    // { label: "About", href: "/about-aibus" },
     { label: "Why Us", href: "#landing-page-section-why-us" },
     { label: "FAQs", href: "#landing-page-section-faqs" },
   ];

@@ -451,7 +451,7 @@ export default function AgentWalletPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-xs font-medium text-neutral-700 dark:text-neutral-300">
-                          {entry.accountType.replace(/_/g, ' ')}
+                          {(entry.accountType || entry.type || 'TRANSACTION').replace(/_/g, ' ')}
                         </td>
                         <td className="px-4 py-3">
                           <div className="text-xs font-medium text-neutral-900 dark:text-neutral-100">

@@ -447,13 +447,19 @@ export interface BookingRecord {
 
 export interface LedgerEntry {
   id: string;
-  agentId: string;
+  agentId?: string | null;
   bookingId?: string | null;
   topupId?: string | null;
+  cancellationId?: string | null;
+  refundId?: string | null;
+  type?: string;
+  debitAmount?: number | string;
+  creditAmount?: number | string;
   entryType: 'DEBIT' | 'CREDIT';
-  accountType: 'CASH_BALANCE' | 'CREDIT_LIMIT' | 'COMMISSION_PAYABLE' | 'REFUND_RECEIVABLE';
+  accountType: 'CASH_BALANCE' | 'CREDIT_LIMIT' | 'COMMISSION_PAYABLE' | 'REFUND_RECEIVABLE' | string;
   amount: number | string;
-  balanceAfter: number | string;
+  balanceAfter?: number | string;
+  currency?: string;
   description: string;
   referenceId?: string | null;
   postedAt: string;
@@ -491,11 +497,31 @@ export interface WalletTopupInitiateResponse {
   isIdempotent: boolean;
 }
 
+export interface CommissionSnapshotItem {
+  id: string;
+  bookingId: string;
+  bookingNumber?: string;
+  providerPnrNo?: string;
+  operatorName?: string;
+  route?: string;
+  travelDate?: string;
+  bookingStatus?: string;
+  grossFare: number;
+  baseFareForCommission: number;
+  commissionRate: number;
+  commissionAmt: number;
+  netFare: number;
+  reversedAt?: string | null;
+  reversalAmt?: number | null;
+  createdAt: string;
+}
+
 export interface CommissionSummary {
   totalCommission: number;
   reversedCommission: number;
   netCommission: number;
   count: number;
+  snapshots?: CommissionSnapshotItem[];
 }
 
 // ---------------------------------------------------------------------------

@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AiBus B2B Agent Portal
 
-## Getting Started
+Next.js app for the AiBus travel-agent portal.
 
-First, run the development server:
+## Local development
+
+Use Node.js 20.9 or newer. Copy the example environment file and install dependencies:
 
 ```bash
+cp .env.example .env.local
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app is available at [http://localhost:3000](http://localhost:3000). Set
+`NEXT_PUBLIC_API_URL` in `.env.local` to the API base URL for the backend you
+want to use. The production API is `https://aibus.shop/api/v1`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy to Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Import the B2B app repository into Vercel and use the repository root as the
+   project root. Vercel should detect Next.js and use `npm run build`.
+2. In **Project Settings → Environment Variables**, add
+   `NEXT_PUBLIC_API_URL` with the value `https://aibus.shop/api/v1` for every
+   environment you plan to deploy (Production, Preview, and Development).
+3. Deploy or redeploy after setting the variable. `NEXT_PUBLIC_` variables are
+   included in the client bundle at build time.
+4. Ensure the backend allows requests from the deployed Vercel domain in its
+   CORS configuration.
 
-## Learn More
+The local `.env` and `.env.local` files are intentionally ignored by Git; adding
+the URL to one of them does not configure the Vercel project.
 
-To learn more about Next.js, take a look at the following resources:
+## Checks
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npm run build
+```

@@ -8,10 +8,27 @@ import { useAuthStore } from "@/store/auth-store";
 import { normalizeError, NormalizedApiError } from "./error-normalizer";
 
 export function getApiBaseUrl(): string {
-  if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
+  const configuredUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+
+  if (!configuredUrl) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("NEXT_PUBLIC_API_URL must be set before building the B2B app for production.");
+    }
+    return "http://localhost:3009/api/v1";
   }
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:3009/api/v1";
+
+  let apiUrl: URL;
+  try {
+    apiUrl = new URL(configuredUrl);
+  } catch {
+    throw new Error("NEXT_PUBLIC_API_URL must be an absolute HTTP or HTTPS URL.");
+  }
+
+  if (apiUrl.protocol !== "http:" && apiUrl.protocol !== "https:") {
+    throw new Error("NEXT_PUBLIC_API_URL must use HTTP or HTTPS.");
+  }
+
+  return apiUrl.toString().replace(/\/+$/, "");
 }
 
 export interface RequestOptions extends Omit<RequestInit, "body"> {
@@ -222,7 +239,21 @@ async function handleResponse<T>(res: Response): Promise<T> {
     const json = await res.json();
     // Return inner data if standard envelope, else root
     if (json && typeof json === "object" && "success" in json && "data" in json) {
-      return json.data as T;
+      const data = json.data;
+      if (data && typeof data === "object") {
+        try {
+          if (!("data" in data)) {
+            Object.defineProperty(data, "data", {
+              get() {
+                return this;
+              },
+              enumerable: false,
+              configurable: true,
+            });
+          }
+        } catch {}
+      }
+      return data as T;
     }
     return json as T;
   }

@@ -42,9 +42,9 @@ export default function PaymentsPage() {
     if (!searchTerm.trim()) return true;
     const term = searchTerm.toLowerCase().trim();
     return (
-      entry.description.toLowerCase().includes(term) ||
+      entry.description?.toLowerCase().includes(term) ||
       (entry.referenceId && entry.referenceId.toLowerCase().includes(term)) ||
-      entry.accountType.toLowerCase().includes(term)
+      (entry.accountType && entry.accountType.toLowerCase().includes(term))
     );
   });
 
@@ -149,7 +149,7 @@ export default function PaymentsPage() {
                       </td>
                       <td className="py-3.5 px-4">
                         <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 font-semibold text-[10px] uppercase text-slate-600 dark:text-slate-300">
-                          {item.accountType.replace(/_/g, " ")}
+                          {(item.accountType || item.type || "TRANSACTION").replace(/_/g, " ")}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 max-w-xs truncate">
