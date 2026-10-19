@@ -371,12 +371,21 @@ export interface CreateBookingPayload {
 
 export interface BookingPassenger {
   id: string;
-  seatNumber: string;
-  passengerName: string;
+  seatNumber?: string;
+  seatNo?: string;
+  passengerName?: string;
+  name?: string;
   gender: string;
-  age: number;
+  age: number | string;
   fare: number | string;
   isAcSeat?: boolean;
+}
+
+export interface BookingSeat {
+  id: string;
+  seatNo: string;
+  seatTypeId?: number;
+  fareTotal?: number | string;
 }
 
 export interface CommissionSnapshot {
@@ -434,7 +443,8 @@ export interface BookingRecord {
   contactEmail: string;
   contactPhone: string;
   cancellationPolicy?: CancellationPolicyRule[] | null;
-  passengers: BookingPassenger[];
+  passengers?: BookingPassenger[];
+  seats?: BookingSeat[];
   ticket?: TicketDetails | null;
   commissionSnapshot?: CommissionSnapshot | null;
   createdAt: string;
@@ -529,6 +539,11 @@ export interface CommissionSummary {
 // ---------------------------------------------------------------------------
 
 export interface CancellabilityCheckResult {
+  bookingId?: string;
+  bookingNumber?: string;
+  ticketNo?: string;
+  pnrNo?: string;
+  seatNos?: string | string[];
   IsCancellable: boolean;
   ChargePct?: number;
   ChargeAmt?: number;
@@ -541,9 +556,25 @@ export interface CancellabilityCheckResult {
 }
 
 export interface CancelBookingResponse {
-  bookingId: string;
-  status: string;
-  refundAmount: number;
-  cancellationCharge: number;
+  bookingId?: string;
+  status?: string;
+  refundAmount?: number;
+  cancellationCharge?: number;
+  netRefundToAgent?: number;
+  walletCredited?: boolean;
   message?: string;
+  cancellation?: {
+    id: string;
+    bookingId: string;
+    status: string;
+    refundAmount: number;
+    chargeAmt: number;
+    seatNos: string[];
+  };
+  refund?: {
+    id: string;
+    amount: number;
+    status: string;
+    destination: string;
+  };
 }

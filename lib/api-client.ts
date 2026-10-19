@@ -288,8 +288,12 @@ export async function downloadFile(
     headers.Authorization = `Bearer ${tokens.accessToken}`;
   }
 
-  const { params: _params, body: _body, timeoutMs: _timeoutMs, skipAuth: _skipAuth, idempotencyKey: _idempotencyKey, headers: _customHeaders, ...restOptions } = options;
-  const res = await fetch(url.toString(), { ...restOptions, headers });
+  const res = await fetch(url.toString(), {
+    method: options.method || "GET",
+    signal: options.signal,
+    credentials: options.credentials,
+    headers,
+  });
   if (!res.ok) {
     throw normalizeError({ status: res.status, message: "Failed to download file" });
   }

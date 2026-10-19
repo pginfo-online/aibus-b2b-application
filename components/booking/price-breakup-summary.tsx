@@ -15,7 +15,6 @@ interface PriceBreakupSummaryProps {
 }
 
 export function PriceBreakupSummary({
-  bus: _bus,
   onConfirmBooking,
   isLoading,
 }: PriceBreakupSummaryProps) {

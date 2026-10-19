@@ -109,13 +109,55 @@ function BookingsListContent() {
     setIsCancelling(true);
 
     try {
-      const seatNos = selectedBooking.passengers.map((p) => p.seatNumber);
+      // Robustly extract seat numbers to cancel:
+      // Priority 1: cancellationCheck.seatNos (exact seats checked against GDS operator)
+      // Priority 2: selectedBooking.passengers (supporting seatNumber or seatNo)
+      // Priority 3: selectedBooking.seats (supporting seatNo or seatNumber)
+      let seatNos: string[] = [];
+
+      if (cancellationCheck?.seatNos) {
+        if (Array.isArray(cancellationCheck.seatNos)) {
+          seatNos = cancellationCheck.seatNos.map(String).filter(Boolean);
+        } else if (typeof cancellationCheck.seatNos === "string") {
+          seatNos = cancellationCheck.seatNos
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }
+
+      if (seatNos.length === 0 && Array.isArray(selectedBooking.passengers)) {
+        seatNos = selectedBooking.passengers
+          .map((p) => p.seatNumber || p.seatNo)
+          .filter(Boolean) as string[];
+      }
+
+      if (seatNos.length === 0 && Array.isArray(selectedBooking.seats)) {
+        seatNos = selectedBooking.seats
+          .map((s) => s.seatNo)
+          .filter(Boolean);
+      }
+
       const res = await api.post<CancelBookingResponse>(`/cancellations/${selectedBooking.id}`, {
         seatNos,
         reason: "Cancelled by agency via B2B portal",
+        refundToWallet: true,
       });
 
-      toast.success(res.message || "Booking cancelled and refund credited to wallet!");
+      const refundAmt =
+        res?.refundAmount ||
+        res?.netRefundToAgent ||
+        res?.cancellation?.refundAmount ||
+        cancellationCheck?.RefundAmount;
+
+      const refundSuffix =
+        refundAmt !== undefined && Number(refundAmt) > 0
+          ? ` (₹${Number(refundAmt).toFixed(2)} credited to agency wallet)`
+          : "";
+
+      toast.success(
+        res?.message || `Booking cancelled successfully${refundSuffix}!`
+      );
       setCancelModalOpen(false);
       setSelectedBooking(null);
       queryClient.invalidateQueries({ queryKey: ["agent"] });
@@ -346,21 +388,47 @@ function BookingsListContent() {
                 Passenger Manifest
               </h4>
               <div className="divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden text-xs">
-                {selectedBooking.passengers?.map((p, idx) => (
-                  <div key={p.id || idx} className="flex items-center justify-between p-3">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-md bg-red-100 text-[#D92D20] font-mono font-bold">
-                        Seat {p.seatNumber}
-                      </span>
-                      <span className="font-bold text-slate-900 dark:text-white">
-                        {p.passengerName}
+                {selectedBooking.passengers && selectedBooking.passengers.length > 0 ? (
+                  selectedBooking.passengers.map((p, idx) => {
+                    const seat = p.seatNumber || p.seatNo || (selectedBooking.seats && selectedBooking.seats[idx]?.seatNo) || `${idx + 1}`;
+                    const name = p.passengerName || p.name || selectedBooking.contactName;
+                    return (
+                      <div key={p.id || idx} className="flex items-center justify-between p-3">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-md bg-red-100 text-[#D92D20] font-mono font-bold">
+                            Seat {seat}
+                          </span>
+                          <span className="font-bold text-slate-900 dark:text-white">
+                            {name}
+                          </span>
+                        </div>
+                        <span className="text-slate-500">
+                          {p.gender === "M" ? "Male" : p.gender === "F" ? "Female" : p.gender || "Passenger"}{p.age ? `, Age ${p.age}` : ""}
+                        </span>
+                      </div>
+                    );
+                  })
+                ) : selectedBooking.seats && selectedBooking.seats.length > 0 ? (
+                  selectedBooking.seats.map((s, idx) => (
+                    <div key={s.id || idx} className="flex items-center justify-between p-3">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-md bg-red-100 text-[#D92D20] font-mono font-bold">
+                          Seat {s.seatNo}
+                        </span>
+                        <span className="font-bold text-slate-900 dark:text-white">
+                          {selectedBooking.contactName || "Confirmed Passenger"}
+                        </span>
+                      </div>
+                      <span className="text-slate-500">
+                        Fare: {formatCurrency(s.fareTotal || selectedBooking.totalFare)}
                       </span>
                     </div>
-                    <span className="text-slate-500">
-                      {p.gender === "M" ? "Male" : "Female"}, Age {p.age}
-                    </span>
+                  ))
+                ) : (
+                  <div className="p-3 text-slate-400 text-center">
+                    Passenger details not available
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
@@ -407,13 +475,23 @@ function BookingsListContent() {
               </div>
             ) : cancellationCheck ? (
               <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-amber-800 dark:text-amber-300 text-xs">
-                  <p className="font-bold text-sm">Operator Refund Assessment</p>
-                  <p className="mt-1">
-                    {cancellationCheck.Message ||
-                      "Refund will be credited directly to your agency wallet immediately."}
-                  </p>
-                </div>
+                {cancellationCheck.IsCancellable === false ? (
+                  <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-800 dark:text-red-300 text-xs">
+                    <p className="font-bold text-sm">Non-Cancellable Ticket</p>
+                    <p className="mt-1">
+                      {cancellationCheck.Message ||
+                        "This ticket is not eligible for cancellation according to the operator policy or departure window."}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-amber-800 dark:text-amber-300 text-xs">
+                    <p className="font-bold text-sm">Operator Refund Assessment</p>
+                    <p className="mt-1">
+                      {cancellationCheck.Message ||
+                        "Refund will be credited directly to your agency wallet immediately."}
+                    </p>
+                  </div>
+                )}
 
                 <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
                   <div className="flex justify-between">
@@ -443,6 +521,7 @@ function BookingsListContent() {
                   <Button
                     variant="danger"
                     isLoading={isCancelling}
+                    disabled={isCancelling || cancellationCheck.IsCancellable === false}
                     onClick={handleExecuteCancellation}
                   >
                     Confirm Cancellation

@@ -51,7 +51,7 @@ export class NormalizedApiError extends Error {
   }
 }
 
-export function normalizeError(error: unknown, _language: 'en' | 'hi' | 'mr' = 'en'): NormalizedApiError {
+export function normalizeError(error: unknown): NormalizedApiError {
   if (error instanceof NormalizedApiError) {
     return error;
   }
